@@ -11,7 +11,7 @@ Get Words accepts a string value and queries the go-igbo_api for words and prono
 package main
 
 import (
-    goigbo "github.com/DCalliet/go-igbo_api"
+    goigbo "github.com/DCalliet/goigbo"
 )
 
 
@@ -41,7 +41,7 @@ Get Examples accets a string values and queries the go-igbo_api for phrases in i
 package main
 
 import (
-    goigbo "github.com/DCalliet/go-igbo_api"
+    goigbo "github.com/DCalliet/goigbo"
 )
 
 
