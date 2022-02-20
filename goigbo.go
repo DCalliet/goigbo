@@ -77,20 +77,21 @@ func (g *GoIgboClient) GetWords(keyword string) ([]GetWordsOutput, error) {
 	return output, err
 }
 
-/**
-{
-    "igbo": "Igwē nà-èji nji",
-    "english": "The sky looks black",
-    "associatedWords": [
-      "5f90c35f49f7e863e92b825b"
-    ],
-    "pronunciation": "",
-    "updatedOn": "2020-11-22T03:29:58.053Z",
-    "id": "5f90c36949f7e863e92b916a"
-  }
-**/
-
 type GetWordsOutput struct {
+	WordClass      string   `json:"wordClass"`
+	Definitions    []string `json:"definitions"`
+	Variations     []string `json:"variations"`
+	Stems          []string `json:"stems"`
+	Word           string   `json:"word"`
+	IsStandardIgbo *bool    `json:"isStandardIgbo"`
+	Antonyms       []string `json:"antonyms"`
+	Hypernyms      []string `json:"hypernyms"`
+	Hyponyms       []string `json:"hyponyms"`
+	Synonyms       []string `json:"synonyms"`
+	Nsibidi        string   `json:"nsibidi"`
+}
+
+type GetExampleOutput struct {
 	Igbo            string   `json:"igbo"`
 	English         string   `json:"english"`
 	AssociatedWords []string `json:"associatedWords"`
