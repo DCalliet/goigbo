@@ -30,13 +30,13 @@ type http_Do interface {
 }
 
 // GetWords will retrieve a keyword and return an array of revelant GetWordsOutput
-func (g *GoIgboClient) GetWords(keyword string) ([]*GetWordsOutput, int, error) {
+func (g *GoIgboClient) GetWords(keyword string) ([]GetWordsOutput, error) {
 	// Bytes downloaded
 	var n int
 	// Create an http request
 	request, err := http.NewRequest("GET", "https://www.igboapi.com/api/v1/words", nil)
 	if err != nil {
-		return []*GetWordsOutput{}, n, err
+		return []GetWordsOutput{}, err
 	}
 	// Set the Request Header
 	request.Header.Add("X-API-Key", g.apikey)
@@ -49,27 +49,27 @@ func (g *GoIgboClient) GetWords(keyword string) ([]*GetWordsOutput, int, error) 
 	// Execute Request
 	response, err := g.client.Do(request)
 	if err != nil {
-		return []*GetWordsOutput{}, n, err
+		return []GetWordsOutput{}, err
 	}
 	// http module recommends closing the body after a request
 	defer response.Body.Close()
 
 	outputBytes := make([]byte, 1024)
-	var output []*GetWordsOutput
+	var output []GetWordsOutput
 	n, err = response.Body.Read(outputBytes)
 	if err != io.EOF {
-		return []*GetWordsOutput{}, n, err
+		return []GetWordsOutput{}, err
 	}
 	// migrate our byte array into a structure we can return
 	err = json.Unmarshal(outputBytes[:n], &output)
 	if err != nil {
-		return []*GetWordsOutput{}, n, &ErrJsonUnrecognized{
+		return []GetWordsOutput{}, &ErrJsonUnrecognized{
 			n:     n,
 			bytes: outputBytes,
 			err:   err,
 		}
 	}
-	return output, n, err
+	return output, err
 }
 
 /**

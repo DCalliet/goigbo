@@ -152,7 +152,7 @@ func Test_GetWords(t *testing.T) {
 				},
 				apikey: os.Getenv("IGBO_API_KEY"),
 			}
-			result, _, err := client.GetWords(c.keyword)
+			result, err := client.GetWords(c.keyword)
 			if err != c.err {
 				t.Fatalf("expected error to be '%v' received '%v'", c.err, err)
 			}
