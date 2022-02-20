@@ -9,10 +9,10 @@ import (
 
 // New will accept an api key and return an interface that will have a
 // GetWords function & a GetExample function
-func New(apikey string, client http_Do) (*GoIdgboClient, error) {
+func New(apikey string, client http_Do) (*GoIgboClient, error) {
 
 	if apikey != "" {
-		instance := GoIdgboClient{
+		instance := GoIgboClient{
 			client: client,
 		}
 		return &instance, nil
@@ -20,7 +20,7 @@ func New(apikey string, client http_Do) (*GoIdgboClient, error) {
 	return nil, &ErrApiKeyRequired{}
 }
 
-type GoIdgboClient struct {
+type GoIgboClient struct {
 	apikey string
 	client http_Do
 }
@@ -30,7 +30,7 @@ type http_Do interface {
 }
 
 // GetWords will retrieve a keyword and return an array of revelant GetWordsOutput
-func (g *GoIdgboClient) GetWords(keyword string) ([]*GetWordsOutput, int, error) {
+func (g *GoIgboClient) GetWords(keyword string) ([]*GetWordsOutput, int, error) {
 	// Bytes downloaded
 	var n int
 	// Create an http request
@@ -40,6 +40,11 @@ func (g *GoIdgboClient) GetWords(keyword string) ([]*GetWordsOutput, int, error)
 	}
 	// Set the Request Header
 	request.Header.Add("X-API-Key", g.apikey)
+
+	// Apply keyword to url.Values
+	q := request.URL.Query()
+	q.Add("keyword", keyword)
+	request.URL.RawQuery = q.Encode()
 
 	// Execute Request
 	response, err := g.client.Do(request)
