@@ -10,9 +10,9 @@ import (
 // New will accept an api key and return an interface that will have a
 // GetWords function & a GetExample function
 func New(apikey string, client http_Do) (*GoIgboClient, error) {
-
 	if apikey != "" {
 		instance := GoIgboClient{
+			apikey: apikey,
 			client: client,
 		}
 		return &instance, nil
@@ -54,15 +54,14 @@ func (g *GoIgboClient) GetWords(keyword string) ([]*GetWordsOutput, int, error) 
 	// http module recommends closing the body after a request
 	defer response.Body.Close()
 
-	outputBytes := make([]byte, 512)
+	outputBytes := make([]byte, 1024)
 	var output []*GetWordsOutput
-
 	n, err = response.Body.Read(outputBytes)
-	if err != nil {
+	if err != io.EOF {
 		return []*GetWordsOutput{}, n, err
 	}
 	// migrate our byte array into a structure we can return
-	err = json.Unmarshal(outputBytes, &output)
+	err = json.Unmarshal(outputBytes[:n], &output)
 	if err != nil {
 		return []*GetWordsOutput{}, n, &ErrJsonUnrecognized{
 			n:     n,
