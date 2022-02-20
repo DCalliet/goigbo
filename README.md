@@ -18,9 +18,12 @@ import (
 func main() {
     // Accepts input
     value := "health"
-    goigboInstance := goigbo.GetNew(os.GetEnv("IGBO_API_KEY"))
+    // Create instance of http client
+    client = &http.Client{}
+    // Create instance of goigbo
+    goigboInstance := goigbo.New(os.GetEnv("IGBO_API_KEY"), client)
 
-    // GetWords
+    // Execute GetWords function
     words, err := goigboInstance.GetWords(value)
     fmt.Print(words)
 }
@@ -45,10 +48,13 @@ import (
 func main() {
     // Accepts input
     value := "health"
-    goigboInstance := goigbo.GetNew(os.GetEnv("IGBO_API_KEY"))
+    // Create instance of http client
+    client = &http.Client{}
+    // Create instance of goigbo
+    goigboInstance := goigbo.New(os.GetEnv("IGBO_API_KEY"), client)
 
-    // GetWords
-    examples, err := goigboInstance.GetWords(value)
+    // Execute GetExamples function
+    examples, err := goigboInstance.GetExamples(value)
     fmt.Print(examples)
 }
 
