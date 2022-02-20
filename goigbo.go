@@ -1,6 +1,7 @@
 package goigbo
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -31,8 +32,6 @@ type http_Do interface {
 
 // GetWords will retrieve a keyword and return an array of revelant GetWordsOutput
 func (g *GoIgboClient) GetWords(keyword string) ([]GetWordsOutput, error) {
-	// Bytes downloaded
-	var n int
 	// Create an http request
 	request, err := http.NewRequest("GET", "https://www.igboapi.com/api/v1/words", nil)
 	if err != nil {
@@ -54,14 +53,20 @@ func (g *GoIgboClient) GetWords(keyword string) ([]GetWordsOutput, error) {
 	// http module recommends closing the body after a request
 	defer response.Body.Close()
 
-	outputBytes := make([]byte, 1024)
+	var n int = -1
+	var outputBytes []byte
 	var output []GetWordsOutput
-	n, err = response.Body.Read(outputBytes)
-	if err != io.EOF {
-		return []GetWordsOutput{}, err
+	for n != 0 {
+		b := make([]byte, 1024)
+		n, err = response.Body.Read(b)
+		if err != io.EOF && err != nil {
+			return []GetWordsOutput{}, err
+		}
+		outputBytes = append(outputBytes, b...)
 	}
+
 	// migrate our byte array into a structure we can return
-	err = json.Unmarshal(outputBytes[:n], &output)
+	err = json.Unmarshal(bytes.Trim(outputBytes, "\x00"), &output)
 	if err != nil {
 		return []GetWordsOutput{}, &ErrJsonUnrecognized{
 			n:     n,
@@ -103,8 +108,8 @@ func (g *GetWordsReader) Read(p []byte) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	size := copy(p, bytes)
-	return size, io.EOF
+	copy(p, bytes)
+	return 0, io.EOF
 }
 
 func (g *GetWordsReader) Close() error {

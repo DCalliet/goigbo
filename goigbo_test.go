@@ -103,7 +103,6 @@ type mockClient_GetWords struct {
 }
 
 func (m *mockClient_GetWords) Do(req *http.Request) (*http.Response, error) {
-	log.Print("in do")
 	if req.Header.Get("X-API-Key") != os.Getenv("IGBO_API_KEY") {
 		// Return error if no api key
 		return &http.Response{
