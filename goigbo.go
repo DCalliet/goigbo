@@ -10,9 +10,9 @@ import (
 // New will accept an api key and return an interface that will have a
 // GetWords function & a GetExample function
 func New(apikey string, client http_Do) (*GoIgboClient, error) {
-
 	if apikey != "" {
 		instance := GoIgboClient{
+			apikey: apikey,
 			client: client,
 		}
 		return &instance, nil

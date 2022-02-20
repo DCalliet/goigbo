@@ -75,9 +75,15 @@ func Test_New(t *testing.T) {
 	}
 	for _, c := range cases {
 		t.Run(c.description, func(t *testing.T) {
-			_, err := New(c.apikey, c.client)
+			instance, err := New(c.apikey, c.client)
 			if err != c.expected {
 				t.Fatalf("Expected returned error to be '%v' and received '%v'", c.expected, err)
+			}
+			if c.expected == nil && instance.apikey != c.apikey {
+				t.Fatalf("Expected apikey to be '%s' and receieved '%s'", c.apikey, instance.apikey)
+			}
+			if c.expected == nil && instance.client == nil {
+				t.Fatal("Expected client to not be nil")
 			}
 
 		})
