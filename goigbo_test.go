@@ -1,6 +1,7 @@
 package goigbo
 
 import (
+	"encoding/json"
 	"io"
 	"log"
 	"net/http"
@@ -23,6 +24,7 @@ type mockClient_New struct {
 }
 
 func (m *mockClient_New) Do(req *http.Request) (*http.Response, error) {
+	var boolpointer bool = true
 	if req.Header.Get("X-API-Key") != m.c.apikey {
 		// Return error if no api key
 		return &http.Response{
@@ -34,12 +36,12 @@ func (m *mockClient_New) Do(req *http.Request) (*http.Response, error) {
 	return &http.Response{
 		Body: &GetWordsReader{
 			{
-				Igbo:            "Igbo_1",
-				English:         "English_1",
-				AssociatedWords: []string{"AssociatedWords_1", "AssociatedWords_1"},
-				Pronunciation:   "Pronunciation_1",
-				UpdatedOn:       "UpdatedOn_1",
-				Id:              "Id_1",
+				WordClass:      "NNC",
+				Definitions:    []string{"health"},
+				Variations:     []string{},
+				Stems:          []string{"ezi", "ndu"},
+				Word:           "ezi ndu",
+				IsStandardIgbo: &boolpointer,
 			},
 		},
 	}, nil
@@ -97,6 +99,23 @@ type TestCase_GetWords struct {
 	expected    *GetWordsReader
 }
 
+type GetWordsReader []GetWordsOutput
+
+// Naive implementation of read will always read from beginning of json
+// array and will always return io.EOF
+func (g *GetWordsReader) Read(p []byte) (int, error) {
+	bytes, err := json.Marshal(g)
+	if err != nil {
+		return 0, err
+	}
+	copy(p, bytes)
+	return 0, io.EOF
+}
+
+func (g *GetWordsReader) Close() error {
+	return nil
+}
+
 type mockClient_GetWords struct {
 	t *testing.T
 	c *TestCase_GetWords
@@ -123,20 +142,21 @@ func (m *mockClient_GetWords) Do(req *http.Request) (*http.Response, error) {
 
 // Test_GetWords will accept a keyword and return an array of GetWordsOutput
 func Test_GetWords(t *testing.T) {
-
+	var boolpointer bool = true
 	cases := []TestCase_GetWords{
 		{
 			description: "getWords should return GetWordsOutput when provided a keyword",
 			keyword:     "health",
 			err:         nil,
+			// {NNC [health] [] [ezi ndù] ezi ndù 0xc0001aa6b0 [] [] [] [] }
 			expected: &GetWordsReader{
 				{
-					Igbo:            "Igbo_1",
-					English:         "English_1",
-					AssociatedWords: []string{"AssociatedWords_1", "AssociatedWords_1"},
-					Pronunciation:   "Pronunciation_1",
-					UpdatedOn:       "UpdatedOn_1",
-					Id:              "Id_1",
+					WordClass:      "NNC",
+					Definitions:    []string{"health"},
+					Variations:     []string{},
+					Stems:          []string{"ezi", "ndu"},
+					Word:           "ezi ndu",
+					IsStandardIgbo: &boolpointer,
 				},
 			},
 		},
@@ -157,14 +177,14 @@ func Test_GetWords(t *testing.T) {
 			}
 			for i, output := range result {
 				eoutput := *c.expected
-				if output.Igbo != eoutput[i].Igbo {
-					t.Fatalf("expected output.Igbo '%s' received '%s'", eoutput[i].Igbo, output.Igbo)
+				if output.WordClass != eoutput[i].WordClass {
+					t.Fatalf("expected output.WordClass '%s' received '%s'", eoutput[i].WordClass, output.WordClass)
 				}
-				if output.English != eoutput[i].English {
-					t.Fatalf("expected output.English '%s' received '%s'", eoutput[i].English, output.English)
+				if output.Word != eoutput[i].Word {
+					t.Fatalf("expected output.English '%s' received '%s'", eoutput[i].Word, output.Word)
 				}
-				if output.Id != eoutput[i].Id {
-					t.Fatalf("expected output.Id '%s' received '%s'", eoutput[i].Id, output.Id)
+				if output.IsStandardIgbo == nil {
+					t.Fatal("expected output.IstandardIgbo to not be nil")
 				}
 			}
 		})

@@ -100,23 +100,6 @@ type GetExampleOutput struct {
 	Id              string   `json:"id"`
 }
 
-type GetWordsReader []GetWordsOutput
-
-// Naive implementation of read will always read from beginning of json
-// array and will always return io.EOF
-func (g *GetWordsReader) Read(p []byte) (int, error) {
-	bytes, err := json.Marshal(g)
-	if err != nil {
-		return 0, err
-	}
-	copy(p, bytes)
-	return 0, io.EOF
-}
-
-func (g *GetWordsReader) Close() error {
-	return nil
-}
-
 type ErrJsonUnrecognized struct {
 	n     int
 	bytes []byte
