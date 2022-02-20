@@ -86,7 +86,6 @@ func Test_New(t *testing.T) {
 
 type TestCase_GetWords struct {
 	description string
-	instance    *GoIgboClient
 	keyword     string
 	err         error
 	expected    *GetWordsReader
@@ -98,7 +97,8 @@ type mockClient_GetWords struct {
 }
 
 func (m *mockClient_GetWords) Do(req *http.Request) (*http.Response, error) {
-	if req.Header.Get("X-API-Key") != m.c.instance.apikey {
+	log.Print("in do")
+	if req.Header.Get("X-API-Key") != os.Getenv("IGBO_API_KEY") {
 		// Return error if no api key
 		return &http.Response{
 			StatusCode: http.StatusBadRequest,
@@ -123,7 +123,7 @@ func Test_GetWords(t *testing.T) {
 		{
 			description: "getWords should return GetWordsOutput when provided a keyword",
 			keyword:     "health",
-			err:         io.EOF,
+			err:         nil,
 			expected: &GetWordsReader{
 				{
 					Igbo:            "Igbo_1",
@@ -139,14 +139,14 @@ func Test_GetWords(t *testing.T) {
 	for _, c := range cases {
 		t.Run(c.description, func(t *testing.T) {
 			// Set client in test so we can self reference the test case
-			c.instance = &GoIgboClient{
+			client := GoIgboClient{
 				client: &mockClient_GetWords{
 					t: t,
 					c: &c,
 				},
 				apikey: os.Getenv("IGBO_API_KEY"),
 			}
-			result, _, err := c.instance.GetWords(c.keyword)
+			result, _, err := client.GetWords(c.keyword)
 			if err != c.err {
 				t.Fatalf("expected error to be '%v' received '%v'", c.err, err)
 			}
