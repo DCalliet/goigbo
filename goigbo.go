@@ -95,7 +95,7 @@ type GetWordsOutput struct {
 	English         string   `json:"english"`
 	AssociatedWords []string `json:"associatedWords"`
 	Pronunciation   string   `json:"pronunciation"`
-	UpdatedOn       string   `json:"updatedOn"`
+	UpdatedOn       string   `json:"-"`
 	Id              string   `json:"id"`
 }
 
